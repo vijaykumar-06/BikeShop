@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using BikeShop.Application.DTOs;
 using BikeShop.Application.Queries;
 using BikeShop.Application.Commands;
+using BikeShop.Application.Exceptions;
 
 namespace BikeShop.Api.Controllers;
 
@@ -20,10 +21,18 @@ public class BikesController : ControllerBase
     [HttpPost]
     public async Task<ActionResult> Create([FromBody] BikeDto dto)
     {
-        var id = await _mediator.Send(
-            new CreateBikeCommand(dto.Manufacturer, dto.Model, dto.Price)
-        );
-        return CreatedAtAction(nameof(GetById), new { id }, null);
+        try
+        {
+            var id = await _mediator.Send(new CreateBikeCommand(
+                dto.Manufacturer, dto.Model, dto.Price,
+                dto.Category, dto.Colour, dto.Weight, dto.ImgUrl
+            ));
+            return CreatedAtAction(nameof(GetById), new { id }, id);
+        }
+        catch (DuplicateBikeException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
     }
 
     [HttpGet("{id}")]

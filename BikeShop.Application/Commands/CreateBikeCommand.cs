@@ -1,17 +1,36 @@
-﻿using MediatR;
+﻿// BikeShop.Application/Commands/CreateBikeCommand.cs
 
-namespace BikeShop.Application.Commands;
+using MediatR;
 
-public class CreateBikeCommand : IRequest<int>
+namespace BikeShop.Application.Commands
 {
-    public string Manufacturer { get; }
-    public string Model { get; }
-    public decimal Price { get; }
-
-    public CreateBikeCommand(string manufacturer, string model, decimal price)
+    public class CreateBikeCommand : IRequest<int>
     {
-        Manufacturer = manufacturer;
-        Model = model;
-        Price = price;
+        public string Manufacturer { get; }
+        public string Model { get; }
+        public decimal Price { get; }
+        public string Category { get; }
+        public string Colour { get; }
+        public string Weight { get; }
+        public string ImgUrl { get; }
+
+        public CreateBikeCommand(
+            string manufacturer,
+            string model,
+            decimal price,
+            string category,
+            string colour,
+            string weight,
+            string imgUrl
+        )
+        {
+            Manufacturer = manufacturer;
+            Model = model;
+            Price = price;
+            Category = category;
+            Colour = colour;
+            Weight = weight;
+            ImgUrl = imgUrl;
+        }
     }
 }

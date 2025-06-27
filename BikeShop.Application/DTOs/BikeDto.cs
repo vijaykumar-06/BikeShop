@@ -1,9 +1,17 @@
-﻿namespace BikeShop.Application.DTOs;
+﻿// BikeShop.Application/DTOs/BikeDto.cs
 
-public class BikeDto
+namespace BikeShop.Application.DTOs
 {
-    public int Id { get; set; }
-    public string Manufacturer { get; set; }
-    public string Model { get; set; }
-    public decimal Price { get; set; }
+    public class BikeDto
+    {
+        public int Id { get; set; }
+        public Guid Ref { get; set; }
+        public string Manufacturer { get; set; }
+        public string Model { get; set; }
+        public decimal Price { get; set; }
+        public string Category { get; set; }
+        public string Colour { get; set; }
+        public string Weight { get; set; }
+        public string ImgUrl { get; set; }
+    }
 }
