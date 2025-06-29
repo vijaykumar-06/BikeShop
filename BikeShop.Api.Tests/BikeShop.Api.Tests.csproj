@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<!-- Test framework -->
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
+		<PackageReference Include="xunit" Version="2.4.2" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.5" />
+
+		<!-- For mocking your IRepository/IMediator -->
+		<PackageReference Include="Moq" Version="4.18.4" />
+
+		<!-- Optional: for simple WebApplicationFactory integration tests -->
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- Reference the projects under test -->
+		<ProjectReference Include="..\BikeShop.API\BikeShop.API.csproj" />
+		<ProjectReference Include="..\BikeShop.Application\BikeShop.Application.csproj" />
+		<ProjectReference Include="..\BikeShop.Infrastructure\BikeShop.Infrastructure.csproj" />
+	</ItemGroup>
+
+</Project>
