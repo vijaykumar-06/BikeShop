@@ -4,11 +4,13 @@ using BikeShop.Application.DTOs;
 using BikeShop.Application.Queries;
 using BikeShop.Application.Commands;
 using BikeShop.Application.Exceptions;
+using Asp.Versioning;
 
 namespace BikeShop.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
 public class BikesController : ControllerBase
 {
     private readonly IMediator _mediator;

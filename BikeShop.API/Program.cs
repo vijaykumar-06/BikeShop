@@ -1,54 +1,61 @@
+using BikeShop.Api.Extensions;           // your AddApiVersioningWithExplorer()
 using Microsoft.OpenApi.Models;
-using BikeShop.Domain.Interfaces;
-using BikeShop.Infrastructure.Data;
-using BikeShop.Infrastructure.Repositories;
-using Microsoft.EntityFrameworkCore;
-using Swashbuckle.AspNetCore;
-
+using Asp.Versioning;
+using Asp.Versioning.ApiExplorer;        // for IApiVersionDescriptionProvider
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+// 1) MVC controllers
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+// 2) API versioning + versioned ApiExplorer
+//    (your extension should internally call AddApiVersioning and AddVersionedApiExplorer)
+builder.Services.AddApiVersioningWithExplorer();
+
+// 3) Standard OpenAPI “explorer”—needed for non?versioned bits (eg health checks)
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-// EF Core + SQL Server
-builder.Services.AddDbContext<BikeShopDbContext>(opt =>
-  opt.UseSqlServer(builder.Configuration.GetConnectionString("BikeShop")));
 
-// Repository
-builder.Services.AddScoped<IBikeRepository, EfBikeRepository>();
-
-// MediatR
-builder.Services.AddMediatR(cfg =>
-    cfg.RegisterServicesFromAssembly(typeof(BikeShop.Application.Queries.GetAllBikesQuery).Assembly)
-);
-// Update the MediatR registration to use the correct overload that accepts an Action<Microsoft.Extensions.DependencyInjection.MediatRServiceConfiguration>.
-builder.Services.AddMediatR(config =>
+// 4) SwaggerGen: register one SwaggerDoc for each API version
+builder.Services.AddSwaggerGen(options =>
 {
-    config.RegisterServicesFromAssembly(typeof(BikeShop.Application.Queries.GetAllBikesQuery).Assembly);
+    // We have to build a temporary provider so we can register SwaggerDocs now
+    var provider = builder.Services
+        .BuildServiceProvider()
+        .GetRequiredService<IApiVersionDescriptionProvider>();
+
+    foreach (var desc in provider.ApiVersionDescriptions)
+    {
+        options.SwaggerDoc(
+            desc.GroupName,
+            new OpenApiInfo
+            {
+                Title = "BikeShop API",
+                Version = desc.ApiVersion.ToString()
+            }
+        );
+    }
 });
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// only enable Swagger in Development
 if (app.Environment.IsDevelopment())
 {
+    // 5) Serve the generated JSON and the Swagger?UI
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "BikeShop API v1");
+        var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+        foreach (var desc in provider.ApiVersionDescriptions)
+        {
+            c.SwaggerEndpoint(
+                $"/swagger/{desc.GroupName}/swagger.json",
+                $"BikeShop {desc.GroupName.ToUpper()}");
+        }
     });
 }
 
-app.UseAuthorization();
 app.UseHttpsRedirection();
-
+app.UseAuthorization();
 app.MapControllers();
-
 app.Run();
